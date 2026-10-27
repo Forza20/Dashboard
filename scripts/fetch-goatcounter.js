@@ -78,8 +78,16 @@ async function fetchDay(date) {
     if (err.status === 404) return null;
     throw err;
   }
-  const locations = await breakdown('locations', range);
-  const sizes = await breakdown('sizes', range);
+  // Opdelingerne gemmes pr. døgn, og GoatCounter runder slutningen op til
+  // næste hele time; 23:59:59 tager derfor også næste døgn med.
+  const dayRange = { start: `${date}T00:00:00Z`, end: `${date}T23:00:00Z` };
+  const locations = await breakdown('locations', dayRange);
+  const sizes = await breakdown('sizes', dayRange);
+  const sum = rows => rows.reduce((a, r) => a + (r.count || 0), 0);
+  const t = total.total_utc ?? total.total ?? 0;
+  if (sum(locations) !== t || sum(sizes) !== t) {
+    console.log(`  Afvigelse ${date}: total ${t}, lande ${sum(locations)}, skærme ${sum(sizes)}`);
+  }
   const week = isoWeek(date);
   return [
     { date, week, type: 'Total', value: 'Alle', count: total.total_utc ?? total.total ?? 0 },
