@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Besøgsdashboard</title>
+<meta name="description" content="Unikke besøgende pr. uge på Forza20.github.io fra GoatCounter, med filtre for land og skærmstørrelse.">
+<style>
+  :root {
+    --page: #f9f9f7; --surface: #fcfcfb; --border: #e4e3df;
+    --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #8a8984;
+    --grid: #ecebe7; --series: #2a78d6; --series-soft: #b7d3f6;
+    --up: #0b7a0b; --down: #c02f2f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #0d0d0d; --surface: #1a1a19; --border: #2e2e2c;
+      --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+      --grid: #2a2a28; --series: #3987e5; --series-soft: #1c5cab;
+      --up: #4cc24c; --down: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #0d0d0d; --surface: #1a1a19; --border: #2e2e2c;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --grid: #2a2a28; --series: #3987e5; --series-soft: #1c5cab;
+    --up: #4cc24c; --down: #e66767;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 26px; line-height: 1.2; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-2); margin: 0 0 24px; }
+  .sub a { color: inherit; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 20px; }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--ink-2); }
+  select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; min-width: 170px; }
+  .note { font-size: 13px; color: var(--ink-3); margin: 0 0 0 auto; align-self: center; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .tile, .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .tile { padding: 14px 16px; }
+  .tile .k { font-size: 13px; color: var(--ink-2); }
+  .tile .v { font-size: 30px; font-weight: 650; line-height: 1.15; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .tile .d { font-size: 13px; color: var(--ink-3); }
+  .up { color: var(--up); } .down { color: var(--down); }
+  .card { padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 2px; }
+  .card .hint { font-size: 13px; color: var(--ink-3); margin: 0 0 12px; }
+  .chart-wrap { position: relative; height: 340px; }
+  details summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+  td.n, th.n { text-align: right; }
+  .error { color: var(--down); }
+  footer { font-size: 13px; color: var(--ink-3); }
+  @media (max-width: 720px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .note { margin-left: 0; }
+    select { min-width: 0; width: 100%; }
+    .filters label { flex: 1 1 140px; }
+    .chart-wrap { height: 280px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Besøgende på Forza20.github.io</h1>
+  <p class="sub">Unikke besøgende pr. uge fra <a href="https://forza20.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a>. Opdateres hver dag. <span id="updated"></span></p>
+
+  <div class="filters">
+    <label>Land (location)
+      <select id="loc"><option value="">Alle lande</option></select>
+    </label>
+    <label>Skærmstørrelse (screen size)
+      <select id="size"><option value="">Alle skærme</option></select>
+    </label>
+    <label>Periode
+      <select id="period">
+        <option value="first">Siden første besøg</option>
+        <option value="12">Seneste 12 uger</option>
+        <option value="52">Seneste 52 uger</option>
+      </select>
+    </label>
+    <p class="note">Land og skærmstørrelse kan ikke kombineres.</p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Denne uge</div><div class="v" id="t-this">–</div><div class="d" id="t-this-d">&nbsp;</div></div>
+    <div class="tile"><div class="k">Forrige uge</div><div class="v" id="t-prev">–</div><div class="d" id="t-prev-d">&nbsp;</div></div>
+    <div class="tile"><div class="k">I alt i perioden</div><div class="v" id="t-sum">–</div><div class="d" id="t-sum-d">&nbsp;</div></div>
+    <div class="tile"><div class="k">Gns. pr. hel uge</div><div class="v" id="t-avg">–</div><div class="d" id="t-avg-d">&nbsp;</div></div>
+  </div>
+
+  <section class="card">
+    <h2 id="chart-title">Besøgende pr. uge</h2>
+    <p class="hint">Den lyse søjle er den igangværende uge. Uger følger ISO-standarden (mandag–søndag, UTC).</p>
+    <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Søjlediagram over besøgende pr. uge"></canvas></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Vis tal som tabel</summary>
+      <table><thead><tr><th>Uge</th><th>Periode</th><th class="n">Besøgende</th></tr></thead><tbody id="tbody"></tbody></table>
+    </details>
+  </section>
+
+  <footer>Data: <a href="https://github.com/Forza20/Dashboard/blob/main/stats-historik.md" style="color:inherit">stats-historik.md</a> i Forza20/Dashboard.</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const SOURCES = [
+  'https://raw.githubusercontent.com/Forza20/Dashboard/main/stats-historik.md',
+  'stats-historik.md',
+];
+const SIZE_NAMES = { phone: 'Telefon', largephone: 'Stor telefon', tablet: 'Tablet', desktop: 'Computer',
+  desktophd: 'Stor skærm (HD)', unknown: 'Ukendt' };
+const fmt = n => n.toLocaleString('da-DK');
+const $ = id => document.getElementById(id);
+
+let rows = [], chart;
+
+function isoWeekOf(d) {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return `${t.getUTCFullYear()}-W${String(Math.ceil(((t - y0) / 864e5 + 1) / 7)).padStart(2, '0')}`;
+}
+function mondayOf(week) {
+  const [y, w] = week.split('-W').map(Number);
+  const jan4 = new Date(Date.UTC(y, 0, 4));
+  const mon = new Date(jan4); mon.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() || 7) - 1) + (w - 1) * 7);
+  return mon;
+}
+const shortDate = d => d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+function weekLabel(week) { return `Uge ${Number(week.split('-W')[1])}`; }
+function weekRange(week) { const m = mondayOf(week), s = new Date(m); s.setUTCDate(m.getUTCDate() + 6); return `${shortDate(m)}–${shortDate(s)}`; }
+
+async function load() {
+  let text = null;
+  for (const url of SOURCES) {
+    try { const r = await fetch(url, { cache: 'no-store' }); if (r.ok) { text = await r.text(); break; } } catch (_) {}
+  }
+  if (!text) throw new Error('Kunne ikke hente stats-historik.md');
+  const re = /^\|\s*(\d{4}-\d{2}-\d{2})\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|\s*(\d+)\s*\|\s*$/;
+  rows = text.split(/\r?\n/).map(l => re.exec(l)).filter(Boolean)
+    .map(m => ({ date: m[1], week: m[2].trim(), type: m[3].trim(), value: m[4].trim(), count: +m[5] }));
+  const upd = /Senest opdateret:\s*(\S+)/.exec(text);
+  if (upd && !isNaN(Date.parse(upd[1]))) {
+    $('updated').textContent = 'Senest hentet ' + new Date(upd[1]).toLocaleString('da-DK', { dateStyle: 'medium', timeStyle: 'short' }) + '.';
+  }
+  fillSelect('loc', 'Location', v => v);
+  fillSelect('size', 'Screen size', v => SIZE_NAMES[v] || v);
+}
+
+function fillSelect(id, type, label) {
+  const totals = {};
+  rows.filter(r => r.type === type).forEach(r => { totals[r.value] = (totals[r.value] || 0) + r.count; });
+  const sel = $(id);
+  Object.entries(totals).sort((a, b) => b[1] - a[1]).forEach(([v, n]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = `${label(v)} (${fmt(n)})`; sel.appendChild(o);
+  });
+}
+
+function weekly() {
+  const loc = $('loc').value, size = $('size').value;
+  const type = loc ? 'Location' : size ? 'Screen size' : 'Total';
+  const value = loc || size || 'Alle';
+  const sums = {};
+  rows.filter(r => r.type === 'Total').forEach(r => { sums[r.week] = 0; });
+  sums[isoWeekOf(new Date())] = sums[isoWeekOf(new Date())] || 0;
+  rows.filter(r => r.type === type && r.value === value).forEach(r => { sums[r.week] = (sums[r.week] || 0) + r.count; });
+  let weeks = Object.keys(sums).sort();
+  const p = $('period').value;
+  if (p === 'first') {
+    const firstTotal = rows.filter(r => r.type === 'Total' && r.count > 0).map(r => r.week).sort()[0];
+    if (firstTotal) weeks = weeks.filter(w => w >= firstTotal);
+  } else {
+    weeks = weeks.slice(-Number(p));
+  }
+  const title = loc ? `Besøgende fra ${loc} pr. uge` : size ? `Besøgende med ${(SIZE_NAMES[size] || size).toLowerCase()} pr. uge` : 'Besøgende pr. uge';
+  return { weeks, values: weeks.map(w => sums[w] || 0), title };
+}
+
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function render() {
+  const { weeks, values, title } = weekly();
+  const current = isoWeekOf(new Date());
+  const n = values.length;
+  const thisIdx = weeks.indexOf(current);
+  const thisV = thisIdx >= 0 ? values[thisIdx] : 0;
+  const prevV = thisIdx > 0 ? values[thisIdx - 1] : (thisIdx === -1 && n ? values[n - 1] : 0);
+  const full = values.filter((_, i) => weeks[i] !== current);
+  const sum = values.reduce((a, b) => a + b, 0);
+
+  $('chart-title').textContent = title;
+  $('t-this').textContent = fmt(thisV);
+  $('t-this-d').textContent = 'indtil nu';
+  $('t-prev').textContent = fmt(prevV);
+  const prev2 = thisIdx > 1 ? values[thisIdx - 2] : null;
+  if (prev2 !== null && prev2 > 0) {
+    const ch = Math.round((prevV - prev2) / prev2 * 100);
+    $('t-prev-d').innerHTML = `<span class="${ch >= 0 ? 'up' : 'down'}">${ch >= 0 ? '▲ +' : '▼ '}${ch} %</span> mod ugen før`;
+  } else { $('t-prev-d').textContent = prev2 === 0 ? 'ingen besøg ugen før' : ' '; }
+  $('t-sum').textContent = fmt(sum);
+  $('t-sum-d').textContent = `${n} ${n === 1 ? 'uge' : 'uger'}`;
+  $('t-avg').textContent = full.length ? fmt(Math.round(full.reduce((a, b) => a + b, 0) / full.length)) : '–';
+  $('t-avg-d').textContent = full.length ? `over ${full.length} hele ${full.length === 1 ? 'uge' : 'uger'}` : 'ingen hele uger endnu';
+
+  $('tbody').innerHTML = weeks.map((w, i) => `<tr><td>${weekLabel(w)} ${w.slice(0, 4)}${w === current ? ' (i gang)' : ''}</td><td>${weekRange(w)}</td><td class="n">${fmt(values[i])}</td></tr>`).reverse().join('');
+
+  const series = css('--series'), soft = css('--series-soft'), ink2 = css('--ink-2'), grid = css('--grid'), surface = css('--surface'), ink = css('--ink');
+  const data = {
+    labels: weeks.map(weekLabel),
+    datasets: [{
+      label: 'Besøgende', data: values,
+      backgroundColor: weeks.map(w => w === current ? soft : series),
+      hoverBackgroundColor: weeks.map(w => w === current ? soft : series),
+      borderColor: surface, borderWidth: { top: 0, left: 1, right: 1, bottom: 0 },
+      borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom',
+      maxBarThickness: 48, categoryPercentage: 0.8, barPercentage: 0.9,
+    }],
+  };
+  const options = {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: surface, titleColor: ink, bodyColor: ink2, borderColor: css('--border'), borderWidth: 1,
+        padding: 10, displayColors: false,
+        callbacks: {
+          title: items => { const w = weeks[items[0].dataIndex]; return `${weekLabel(w)} ${w.slice(0, 4)} · ${weekRange(w)}`; },
+          label: item => `${fmt(item.raw)} besøgende${weeks[item.dataIndex] === current ? ' (indtil nu)' : ''}`,
+        },
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, border: { color: grid }, ticks: { color: ink2, autoSkip: true, maxRotation: 0 } },
+      y: { beginAtZero: true, grid: { color: grid }, border: { display: false },
+        ticks: { color: ink2, precision: 0, callback: v => fmt(v) } },
+    },
+  };
+  if (chart) { chart.data = data; chart.options = options; chart.update(); }
+  else chart = new Chart($('chart'), { type: 'bar', data, options });
+}
+
+$('loc').addEventListener('change', () => { if ($('loc').value) $('size').value = ''; render(); });
+$('size').addEventListener('change', () => { if ($('size').value) $('loc').value = ''; render(); });
+$('period').addEventListener('change', render);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => chart && render());
+
+load().then(render).catch(e => {
+  document.querySelector('.chart-wrap').innerHTML = `<p class="error">${e.message}. Prøv at genindlæse siden.</p>`;
+});
+</script>
+</body>
+</html>
