@@ -36,7 +36,11 @@ async function get(endpoint, params) {
       await sleep((parseInt(res.headers.get('X-Rate-Limit-Reset') || '2', 10) + 1) * 1000);
       continue;
     }
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${endpoint}: ${await res.text()}`);
+    if (!res.ok) {
+      const err = new Error(`${res.status} ${res.statusText} for ${endpoint}: ${await res.text()}`);
+      err.status = res.status;
+      throw err;
+    }
     return res.json();
   }
 }
@@ -64,7 +68,14 @@ const clean = s => String(s || 'Ukendt').replace(/\|/g, '/').trim();
 
 async function fetchDay(date) {
   const range = { start: `${date}T00:00:00Z`, end: `${date}T23:59:59Z` };
-  const total = await get('/stats/total', range);
+  let total;
+  try {
+    total = await get('/stats/total', range);
+  } catch (err) {
+    // GoatCounter svarer 404 for datoer før sitet blev oprettet.
+    if (err.status === 404) return null;
+    throw err;
+  }
   const locations = await breakdown('locations', range);
   const sizes = await breakdown('sizes', range);
   const week = isoWeek(date);
@@ -115,11 +126,14 @@ function write(rows) {
     dates.push(d.toISOString().slice(0, 10));
   }
   const fresh = [];
+  let skipped = 0;
   for (const date of dates) {
     const rows = await fetchDay(date);
+    if (!rows) { skipped++; continue; }
     console.log(`${date}: ${rows[0].count} besøgende, ${rows.length - 1} opdelingsrækker`);
     fresh.push(...rows);
   }
+  if (skipped) console.log(`Sprang ${skipped} døgn over (før sitet blev oprettet).`);
   const kept = readExisting().filter(r => !dates.includes(r.date));
   write([...kept, ...fresh]);
   console.log(`Gemte ${kept.length + fresh.length} rækker i stats-historik.md`);
