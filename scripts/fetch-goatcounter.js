@@ -33,7 +33,9 @@ async function get(endpoint, params) {
     await sleep(300);
     const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' } });
     if (res.status === 429 && attempt < 5) {
-      await sleep((parseInt(res.headers.get('X-Rate-Limit-Reset') || '2', 10) + 1) * 1000);
+      const wait = Math.min(parseInt(res.headers.get('X-Rate-Limit-Reset') || '2', 10) + 1, 60);
+      console.log(`  Rate limit nået, venter ${wait} s`);
+      await sleep(wait * 1000);
       continue;
     }
     if (!res.ok) {
@@ -125,9 +127,43 @@ function write(rows) {
     const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - i));
     dates.push(d.toISOString().slice(0, 10));
   }
+  // Find dage med besøgende med få kald (31 døgn pr. kald). Dage uden besøg
+  // får en Total-række med 0 uden flere kald. Nabodage tages med, fordi
+  // oversigten er i sitets tidszone, mens resten er i UTC.
+  const active = new Set();
+  let firstKnown = null;
+  if (DAYS > 3) {
+    for (let i = 0; i < dates.length; i += 31) {
+      const chunk = dates.slice(i, i + 31);
+      let data;
+      try {
+        data = await get('/stats/total', { start: `${chunk[0]}T00:00:00Z`, end: `${chunk[chunk.length - 1]}T23:59:59Z` });
+      } catch (err) {
+        // 404 = perioden starter før sitet fandtes. Hent dagene enkeltvis,
+        // så dagene efter oprettelsen i samme periode ikke går tabt.
+        if (err.status === 404) { chunk.forEach(d => active.add(d)); continue; }
+        throw err;
+      }
+      if (!firstKnown) firstKnown = chunk[0];
+      for (const s of data.stats || []) {
+        if (s.daily > 0) {
+          const d = new Date(`${s.day}T00:00:00Z`);
+          for (const off of [-1, 0, 1]) {
+            active.add(new Date(d.getTime() + off * 86400000).toISOString().slice(0, 10));
+          }
+        }
+      }
+    }
+  }
+
   const fresh = [];
   let skipped = 0;
   for (const date of dates) {
+    if (DAYS > 3 && !active.has(date)) {
+      if (!firstKnown || date < firstKnown) { skipped++; continue; }
+      fresh.push({ date, week: isoWeek(date), type: 'Total', value: 'Alle', count: 0 });
+      continue;
+    }
     const rows = await fetchDay(date);
     if (!rows) { skipped++; continue; }
     console.log(`${date}: ${rows[0].count} besøgende, ${rows.length - 1} opdelingsrækker`);
