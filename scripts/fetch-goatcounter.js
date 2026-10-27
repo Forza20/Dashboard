@@ -79,8 +79,8 @@ async function fetchDay(date) {
     throw err;
   }
   // Opdelingerne gemmes pr. døgn, og GoatCounter runder slutningen op til
-  // næste hele time; 23:59:59 tager derfor også næste døgn med.
-  const dayRange = { start: `${date}T00:00:00Z`, end: `${date}T23:00:00Z` };
+  // næste døgn; en slutning i løbet af dagen tager derfor næste døgn med.
+  const dayRange = { start: `${date}T00:00:00Z`, end: `${date}T00:00:00Z` };
   const locations = await breakdown('locations', dayRange);
   const sizes = await breakdown('sizes', dayRange);
   const sum = rows => rows.reduce((a, r) => a + (r.count || 0), 0);
