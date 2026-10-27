@@ -7,7 +7,7 @@ Rediger ikke tabellen i hånden; rækker for de seneste døgn bliver overskrevet
 - **Type = Location:** besøgende pr. land
 - **Type = Screen size:** besøgende pr. skærmstørrelse
 
-Senest opdateret: 2026-10-27T09:25:24Z
+Senest opdateret: 2026-10-27T09:26:19Z
 
 | Dato | Uge | Type | Værdi | Besøgende |
 | --- | --- | --- | --- | ---: |
@@ -368,48 +368,36 @@ Senest opdateret: 2026-10-27T09:25:24Z
 | 2026-10-17 | 2026-W42 | Total | Alle | 0 |
 | 2026-10-18 | 2026-W42 | Total | Alle | 0 |
 | 2026-10-19 | 2026-W43 | Total | Alle | 0 |
-| 2026-10-19 | 2026-W43 | Location | Denmark | 8 |
-| 2026-10-19 | 2026-W43 | Location | Sweden | 1 |
-| 2026-10-19 | 2026-W43 | Screen size | phone | 7 |
-| 2026-10-19 | 2026-W43 | Screen size | desktop | 2 |
 | 2026-10-20 | 2026-W43 | Total | Alle | 9 |
-| 2026-10-20 | 2026-W43 | Location | Denmark | 19 |
+| 2026-10-20 | 2026-W43 | Location | Denmark | 8 |
 | 2026-10-20 | 2026-W43 | Location | Sweden | 1 |
-| 2026-10-20 | 2026-W43 | Screen size | phone | 14 |
-| 2026-10-20 | 2026-W43 | Screen size | desktop | 6 |
+| 2026-10-20 | 2026-W43 | Screen size | phone | 7 |
+| 2026-10-20 | 2026-W43 | Screen size | desktop | 2 |
 | 2026-10-21 | 2026-W43 | Total | Alle | 11 |
-| 2026-10-21 | 2026-W43 | Location | Denmark | 21 |
-| 2026-10-21 | 2026-W43 | Screen size | phone | 15 |
-| 2026-10-21 | 2026-W43 | Screen size | desktop | 6 |
+| 2026-10-21 | 2026-W43 | Location | Denmark | 11 |
+| 2026-10-21 | 2026-W43 | Screen size | phone | 7 |
+| 2026-10-21 | 2026-W43 | Screen size | desktop | 4 |
 | 2026-10-22 | 2026-W43 | Total | Alle | 10 |
-| 2026-10-22 | 2026-W43 | Location | Denmark | 12 |
-| 2026-10-22 | 2026-W43 | Location | Russia | 1 |
-| 2026-10-22 | 2026-W43 | Location | United States | 1 |
-| 2026-10-22 | 2026-W43 | Screen size | phone | 9 |
-| 2026-10-22 | 2026-W43 | Screen size | desktop | 4 |
-| 2026-10-22 | 2026-W43 | Screen size | tablet | 1 |
+| 2026-10-22 | 2026-W43 | Location | Denmark | 10 |
+| 2026-10-22 | 2026-W43 | Screen size | phone | 8 |
+| 2026-10-22 | 2026-W43 | Screen size | desktop | 2 |
 | 2026-10-23 | 2026-W43 | Total | Alle | 4 |
-| 2026-10-23 | 2026-W43 | Location | Denmark | 5 |
+| 2026-10-23 | 2026-W43 | Location | Denmark | 2 |
 | 2026-10-23 | 2026-W43 | Location | Russia | 1 |
 | 2026-10-23 | 2026-W43 | Location | United States | 1 |
-| 2026-10-23 | 2026-W43 | Screen size | phone | 4 |
 | 2026-10-23 | 2026-W43 | Screen size | desktop | 2 |
+| 2026-10-23 | 2026-W43 | Screen size | phone | 1 |
 | 2026-10-23 | 2026-W43 | Screen size | tablet | 1 |
 | 2026-10-24 | 2026-W43 | Total | Alle | 3 |
-| 2026-10-24 | 2026-W43 | Location | Denmark | 6 |
-| 2026-10-24 | 2026-W43 | Screen size | phone | 6 |
+| 2026-10-24 | 2026-W43 | Location | Denmark | 3 |
+| 2026-10-24 | 2026-W43 | Screen size | phone | 3 |
 | 2026-10-25 | 2026-W43 | Total | Alle | 3 |
-| 2026-10-25 | 2026-W43 | Location | United States | 4 |
 | 2026-10-25 | 2026-W43 | Location | Denmark | 3 |
 | 2026-10-25 | 2026-W43 | Screen size | phone | 3 |
-| 2026-10-25 | 2026-W43 | Screen size | desktop | 2 |
-| 2026-10-25 | 2026-W43 | Screen size | tablet | 2 |
 | 2026-10-26 | 2026-W44 | Total | Alle | 4 |
 | 2026-10-26 | 2026-W44 | Location | United States | 4 |
-| 2026-10-26 | 2026-W44 | Location | Denmark | 1 |
 | 2026-10-26 | 2026-W44 | Screen size | desktop | 2 |
 | 2026-10-26 | 2026-W44 | Screen size | tablet | 2 |
-| 2026-10-26 | 2026-W44 | Screen size | phone | 1 |
 | 2026-10-27 | 2026-W44 | Total | Alle | 1 |
 | 2026-10-27 | 2026-W44 | Location | Denmark | 1 |
 | 2026-10-27 | 2026-W44 | Screen size | phone | 1 |
