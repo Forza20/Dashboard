@@ -1,0 +1,48 @@
+name: Hent GoatCounter-tal
+
+on:
+  schedule:
+    # Hver dag kl. 21:50 UTC (22:50 dansk vintertid / 23:50 sommertid)
+    - cron: '50 21 * * *'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Antal døgn bagud inkl. i dag (fx 365 for at hente historik)'
+        required: false
+        default: '2'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: goatcounter
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Hent tal fra GoatCounter
+        env:
+          GOATCOUNTER_TOKEN: ${{ secrets.GOATCOUNTER_TOKEN }}
+          GOATCOUNTER_SITE: forza20
+          DAYS: ${{ github.event.inputs.days || '2' }}
+        run: node scripts/fetch-goatcounter.js
+
+      - name: Gem ændringer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats-historik.md
+          if git diff --cached --quiet; then
+            echo "Ingen ændringer."
+          else
+            git commit -m "Opdater besøgsstatistik $(date -u +%Y-%m-%d)"
+            git push
+          fi
