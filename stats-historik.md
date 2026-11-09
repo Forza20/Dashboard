@@ -7,7 +7,7 @@ Rediger ikke tabellen i hånden; rækker for de seneste døgn bliver overskrevet
 - **Type = Location:** besøgende pr. land
 - **Type = Screen size:** besøgende pr. skærmstørrelse
 
-Senest opdateret: 2026-11-08T00:56:11Z
+Senest opdateret: 2026-11-09T01:14:19Z
 
 | Dato | Uge | Type | Værdi | Besøgende |
 | --- | --- | --- | --- | ---: |
@@ -419,4 +419,4 @@ Senest opdateret: 2026-11-08T00:56:11Z
 | 2026-11-07 | 2026-W45 | Total | Alle | 0 |
 | 2026-11-07 | 2026-W45 | Location | Denmark | 1 |
 | 2026-11-07 | 2026-W45 | Screen size | desktophd | 1 |
-| 2026-11-08 | 2026-W45 | Total | Alle | 0 |
+| 2026-11-09 | 2026-W46 | Total | Alle | 0 |
