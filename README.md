@@ -1,5 +1,7 @@
 # Dashboard
 
+**Dashboard: https://forza20.github.io/Dashboard/**
+
 Besøgsstatistik for [Forza20.github.io](https://forza20.github.io) fra [GoatCounter](https://forza20.goatcounter.com).
 
 Et GitHub Actions-workflow henter hver dag antal besøgende i alt, pr. land (locations) og pr. skærmstørrelse (screen sizes) og gemmer dem i [stats-historik.md](stats-historik.md). Filen er grundlaget for et dashboard med udviklingen i besøgende pr. uge.
